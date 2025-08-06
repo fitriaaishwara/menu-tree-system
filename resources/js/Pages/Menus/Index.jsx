@@ -6,6 +6,7 @@ import EditMenuModal from '@/Components/EditMenuModal';
 import AddParentModal from '@/Components/AddParentModal';
 import '../../../css/app.css';
 import Layout from '../../Layouts/Layout';
+import toast from 'react-hot-toast'
 
 
 function Index({ menus }) {
@@ -136,11 +137,19 @@ const handleDelete = (id) => {
   console.log('Delete ID:', id);
   console.log('URL:', url);
 
-router.delete(`/menus/${id}`, {
-  data: {}, // kalau gak ada data tambahan, kosongkan
-  preserveScroll: true,
-});
+  router.delete(url, {
+    data: {},
+    preserveScroll: true,
+    onSuccess: () => {
+      toast.success('Menu berhasil dihapus');
+    },
+    onError: (errors) => {
+      toast.error('Gagal menghapus menu');
+      console.error(errors);
+    },
+  });
 };
+
   const renderTree = (items) => {
     return (
       <ul className="ml-4 border-l border-gray-300">

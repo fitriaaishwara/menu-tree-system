@@ -13,5 +13,10 @@ Route::post('/menus', [MenuController::class, 'store'])->name('menus.store');
 Route::put('/menus/{id}', [MenuController::class, 'update'])->name('menus.update');
 Route::delete('/menus/{id}', [MenuController::class, 'destroy'])->name('menus.destroy');
 
+// routes/web.php
+Route::get('/api/menus', [MenuController::class, 'apiIndex'])->name('menus.api.index');
+Route::get('/api/menus/{id}', [MenuController::class, 'apiShow'])->name('menus.api.show');
+
+
 
 

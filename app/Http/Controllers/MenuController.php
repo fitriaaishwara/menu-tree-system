@@ -63,7 +63,10 @@ class MenuController extends Controller
             'depth' => $depth,
         ]);
 
-        return redirect()->back()->with('success', 'Menu berhasil ditambahkan');
+         return response()->json([
+        'message' => 'Menu created successfully',
+        'data' => $menu,
+        ], 201);
     }
 
     public function edit($id)
@@ -76,10 +79,6 @@ class MenuController extends Controller
             'menu' => $menu,
         ]);
     }
-
-
-
-
 
     public function update(Request $request, $id)
     {
@@ -98,15 +97,45 @@ class MenuController extends Controller
                 : 0,
         ]);
 
-        return redirect()->back()->with('success', 'Menu berhasil diperbarui');
+        return response()->json([
+            'message' => 'Menu berhasil diperbarui',
+            'data' => $menu,
+        ]);
+
     }
 
-public function destroy($id)
-{
-    $menu = Menu::findOrFail($id);
-    $menu->delete();
+    public function destroy($id)
+    {
+        $menu = Menu::findOrFail($id);
+        $menu->delete();
 
-    return redirect()->back()->with('success', 'Menu berhasil dihapus');
-}
+        return response()->json(['message' => 'Menu berhasil dihapus']);
+    }
+
+    public function apiIndex()
+    {
+        $menus = Menu::whereNull('parent_id')
+                    ->with(['children' => function($query) {
+                        $query->orderBy('created_at', 'ASC');
+                    }])
+                    ->orderBy('created_at', 'ASC')
+                    ->get();
+
+        return response()->json([
+            'message' => 'Success',
+            'data' => $menus
+        ]);
+    }
+
+    public function apiShow($id)
+    {
+        $menu = Menu::with('children', 'parent')->findOrFail($id);
+
+        return response()->json([
+            'message' => 'Success',
+            'data' => $menu
+        ]);
+    }
+
 
 }

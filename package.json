@@ -18,6 +18,7 @@
         "@inertiajs/react": "^2.0.17",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
+        "react-hot-toast": "^2.5.2",
         "ziggy-js": "^2.5.3"
     },
     "name": "menu-tree",
