@@ -15,6 +15,7 @@ function Index({ menus }) {
     parent_id: null,
   });
 
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('add'); // 'add' or 'edit'
   const [modalData, setModalData] = useState({ id: '', name: '', parent_id: '', parent_name: '', depth: '' });
@@ -23,6 +24,14 @@ function Index({ menus }) {
   const [selectedMenu, setSelectedMenu] = useState('system management');
   const [isExpandActive, setIsExpandActive] = useState(false);
   const [isCollapseActive, setIsCollapseActive] = useState(false);
+  const toggleExpand = (id) => {
+  if (expandedIds.includes(id)) {
+    setExpandedIds((prev) => prev.filter((itemId) => itemId !== id));
+  } else {
+    setExpandedIds((prev) => [...prev, id]);
+  }
+};
+
 
   const getParentName = (parentId, menus) => {
     for (let menu of menus) {
@@ -44,6 +53,19 @@ function Index({ menus }) {
       }));
     }
   }, [modalData.parent_id, menus]);
+
+  useEffect(() => {
+  const ids = [];
+  const collectIds = (items) => {
+    items.forEach((item) => {
+      ids.push(item.id);
+      if (item.children) collectIds(item.children);
+    });
+  };
+  collectIds(menus);
+  setExpandedIds(ids);
+  setIsExpandActive(true); // optional, kalau mau tombol “Expand All” tampak aktif
+}, [menus]);
 
   const handleButtonClick = () => {
     setIsExpandActive(false);
@@ -108,6 +130,23 @@ const handleAddSubmenu = (parentId) => {
     });
     setShowModal(true);
   };
+
+const handleAddModalSubmit = (e) => {
+  e.preventDefault();
+
+  router.post('/menus', modalData, {
+    onSuccess: () => {
+      setShowModal(false);  // tutup modal
+      toast.success('Submenu berhasil ditambahkan');
+    },
+    onError: (errors) => {
+      console.error(errors);
+      toast.error('Gagal menambahkan submenu');
+    }
+  });
+};
+
+
 
 const handleModalSubmit = (e) => {
   e.preventDefault();
@@ -247,6 +286,7 @@ const handleDelete = (id) => {
         </div>
 
         <div className="max-h-[70vh] overflow-y-auto">
+
           {renderTree(sortedMenus)}
         </div>
 
@@ -256,11 +296,12 @@ const handleDelete = (id) => {
             visible={showModal}
             title="Tambah Submenu"
             onClose={() => setShowModal(false)}
-            onSubmit={handleModalSubmit}
+            onSubmit={handleAddModalSubmit} // pastikan ini
             data={modalData}
             setData={(key, value) => setModalData((prev) => ({ ...prev, [key]: value }))}
             errors={errors}
-          />
+            />
+
         )}
 
         {/* Modal EDIT */}
